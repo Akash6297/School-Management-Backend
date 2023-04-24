@@ -15,20 +15,10 @@ const serveStatic = require('serve-static');
 const jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 const dotenv = require("dotenv");
+const { subtle } = require('crypto');
 require('dotenv').config();
 const JWT_SECRET = "haihdbuh487267348778734@#3489?fh92u348209382398094804urfhjs-3][hvuf";
 
-// const DB = process.env.DATABASE;
-// const mongoUrl = "mongodb+srv://akashmandal6297:<password>@cluster0.z5uwyes.mongodb.net/?retryWrites=true&w=majority";
-// mongoose.connect(DB, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// }).then(() => {
-//   console.log('Connected to MongoDB!');
-// }).catch(err => {
-//   console.error('Failed to connect:', err);
-// });
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.z5uwyes.mongodb.net/?retryWrites=true&w=majority`;
 
 const uri = process.env.DATABASE;
  mongoose
@@ -119,17 +109,21 @@ app.post("/userData", async(req,res)=>{
     
   }
 });
-app.post("/forgot-password", async(req,res)=>{
-  
-  const {email} = req.body;
+
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
   try {
-    const oldUser = await User.findOne({email});
-    if(!oldUser){
-      return res.json({status:"User Not Exists!!"})
+    const oldUser = await User.findOne({ email });
+    if (!oldUser) {
+      return res.json({ status: "User Not Exists!!" });
     }
     const secret = JWT_SECRET + oldUser.password;
-    const token = jwt.sign({email: oldUser.email, id: oldUser._id},secret,{expiresIn:"5m"});
-    const link = `${BASE_URL}/${oldUser._id}/${token}`;
+    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
+      expiresIn: "5m",
+    });
+   
+    const link = `http://localhost:5000/${oldUser._id}/${token}`;
+    
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -143,19 +137,18 @@ app.post("/forgot-password", async(req,res)=>{
       to: email,
       subject: 'Password Reset',
       text: link
+      
     };
-    
-    transporter.sendMail(mailOptions, function(error, info){
+
+    transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
       } else {
-        console.log('Email sent: ' + info.response);
+        console.log("Email sent: " + info.response);
       }
     });
-    // console.log(link);
-  } catch (error) {
-    
-  }
+    console.log(link);
+  } catch (error) { }
 });
 
 app.get("/reset-password/:id/:token", async (req, res) => {
