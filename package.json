@@ -29,8 +29,8 @@
     "serve-static": "^1.15.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "node index.js",
+    "build": "npm i",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
     
