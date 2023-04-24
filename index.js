@@ -122,7 +122,7 @@ app.post("/forgot-password", async (req, res) => {
       expiresIn: "5m",
     });
    
-    const link = `http://localhost:5000/${oldUser._id}/${token}`;
+    const link = `https://schoolbackend-xmj7.onrender.com/${oldUser._id}/${token}`;
     
     var transporter = nodemailer.createTransport({
       service: 'gmail',
