@@ -4,7 +4,7 @@
   "description": "This the the Backend of School Management System",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node index.js"
   },
   "author": "Akash Mandal",
   "license": "ISC",
