@@ -34,8 +34,10 @@ const uri = process.env.DATABASE;
 
 
 require("./userDetails");
+require("./imageDetails");
 
 const User=mongoose.model("UserInfo");
+const Images = mongoose.model("ImageDetails");
 
 app.post("/register",async(req,res)=>{
   const {fname, lname, email, password, userType} = req.body;
@@ -207,11 +209,72 @@ app.get("/getAllUser", async (req, res) => {
   }
 });
 
+app.post("/deleteUser", async (req, res) => {
+  const { userid } = req.body;
+  try {
+    User.deleteOne({ _id: userid }, function (err, res) {
+      console.log(err);
+    });
+    res.send({ status: "Ok", data: "Deleted" });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
+app.post("/upload-image", async (req, res) => {
+  const { base64 } = req.body;
+  try {
+    await Images.create({ image: base64 });
+    res.send({ Status: "ok" })
+
+  } catch (error) {
+    res.send({ Status: "error", data: error });
+
+  }
+})
+
+app.get("/get-image", async (req, res) => {
+  try {
+    await Images.find({}).then(data => {
+      res.send({ status: "ok", data: data })
+    })
+
+  } catch (error) {
+
+  }
+})
+
+app.get("/paginatedUsers", async (req, res) => {
+  const allUser = await User.find({});
+  const page = parseInt(req.query.page)
+  const limit = parseInt(req.query.limit)
+
+  const startIndex = (page - 1) * limit
+  const lastIndex = (page) * limit
+
+  const results = {}
+  results.totalUser=allUser.length;
+  results.pageCount=Math.ceil(allUser.length/limit);
+
+  if (lastIndex < allUser.length) {
+    results.next = {
+      page: page + 1,
+    }
+  }
+  if (startIndex > 0) {
+    results.prev = {
+      page: page - 1,
+    }
+  }
+  results.result = allUser.slice(startIndex, lastIndex);
+  res.json(results)
+})
 
 
